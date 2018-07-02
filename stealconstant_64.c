@@ -1,0 +1,98 @@
+/* $Id: stealconstant64.c,v 5.2 2016/01/06 22:21:09 albert Exp $                   */
+/* Copyright(2000): Albert van der Horst, HCC FIG Holland by GNU Public License */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/times.h>
+#include <unistd.h>
+#include <linux/unistd.h>
+#include <string.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <termios.h>
+#include <signal.h>
+#include <setjmp.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <asm/ioctls.h>
+#include <sched.h>
+
+/*****************************************************************************/
+/*                                                                           */
+/*  This c-source is only intended to be print a number of EUQATES           */
+/*  in form that is palatable for the assemblers used in generating          */
+/*  ciforth.                                                                 */
+/*                                                                           */
+/*****************************************************************************/
+
+/* Steal the information what value B has, leave it in A */
+#define STEAL(A,B)   printf("%s\tEQU\t0x%x\n", A, B );
+
+/* Have a A that has the same value than in C. */
+#define STEALNAME(A)   STEAL( #A, A)
+
+/* Have a A that has the number of system call B */
+#define STEALSYS(A)   STEAL( #A, __NR_##A)
+
+int main()
+{
+printf("include(stealconstant.m4)                                           \n");
+printf("_C{ ------------------------------------------------------------      }\n");
+printf("_C{   Start of constants stolen from C.                                 }\n");
+printf("_C{ ------------------------------------------------------------      }\n");
+printf("\n");
+        STEALNAME(SEEK_SET)
+        STEALNAME(SEEK_CUR)
+        STEALNAME(TCGETS)
+        STEALNAME(TCSETS)
+        STEALNAME(ECHO)
+        STEALNAME(EAGAIN)
+        STEALNAME(EINTR)
+        STEALNAME(EPIPE)
+        STEALNAME(VMIN)
+        STEALNAME(VTIME)
+        STEALNAME(ICANON)
+        STEALNAME(CLONE_VM)
+        STEALNAME(O_RDWR)
+        STEALNAME(O_RDONLY)
+        STEALNAME(O_WRONLY)
+        STEALNAME(O_CREAT)
+        STEALNAME(O_NONBLOCK)
+        STEALNAME(CLONE_VM)
+
+        STEAL("SIZE_TERMIO",sizeof(struct termios))
+
+printf("\n");
+printf("_C{ Numbers of system calls. See \"Linux kernel Internals\" Appendix A. }\n");
+printf("_C{ By M.Beck, H. Boehme e.a. Addison Wesley.                         }\n");
+printf("_C{ or in practice                                                    }\n");
+printf("_C{ https://github.com/torvalds/linux/tree/master/arch/x86/entry/syscalls}\n");
+printf("_C{ The system calls themselves are extensively documented in chapter }\n");
+printf("_C{ 2 of the man pages, e.g. \"man 2 exit\"}\n");
+        STEALSYS(exit)
+        STEALSYS(open)
+        STEALSYS(close)
+        STEALSYS(creat)
+        STEALSYS(unlink)
+        STEALSYS(chdir)
+        STEALSYS(read)
+        STEALSYS(select)
+/*      STEALSYS(_newselect)                                                 */
+        STEALSYS(write)
+        STEALSYS(ioctl)
+        STEALSYS(ioperm)
+        STEALSYS(iopl)
+        STEALSYS(lseek)
+        STEALSYS(execve)
+        STEALSYS(fork)
+        STEALSYS(wait4)
+        STEALSYS(pipe)
+        STEALSYS(clone)
+        STEALSYS(kill)
+/*      STEALSYS(signal)                                                     */
+        STEALSYS(time)
+        STEALSYS(times)
+printf("_C{ ------------------------------------------------------------      }\n");
+printf("_C{   End of constants stolen from C.                                 }\n");
+printf("_C{ ------------------------------------------------------------      }\n");
+        exit(0);
+}
